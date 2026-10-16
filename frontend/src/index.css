@@ -48,3 +48,36 @@ button, a, input, textarea, select {
   border: 1px solid #334155 !important;
   border-radius: 10px !important;
 }
+
+/* ── Print Styles for Academic Report ───────────────────────────── */
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+  header, nav, button, .no-print {
+    display: none !important;
+  }
+  .print-modal {
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    border: none !important;
+    overflow: visible !important;
+  }
+  .print-modal * {
+    color: #111827 !important;
+    border-color: #d1d5db !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+  }
+  .print-modal .academic-title {
+    color: #1e3a8a !important;
+  }
+}
+

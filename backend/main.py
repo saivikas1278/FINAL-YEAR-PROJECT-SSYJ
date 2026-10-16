@@ -66,24 +66,32 @@ except Exception as e:
 DEV_FILE = "d:/my_PROJECTS/FINAL YEAR PROJECT -SSJY/backend/developers.json"
 
 DEFAULT_DEVELOPERS = [
-    {"id": 1, "name": "Alice Smith",    "role": "Frontend Developer",     "workload": 85, "velocity": 40, "timezone": "UTC+5:30"},
-    {"id": 2, "name": "Bob Jones",      "role": "Frontend Developer",     "workload": 30, "velocity": 35, "timezone": "UTC+0"},
-    {"id": 3, "name": "Charlie Davis",  "role": "Backend Developer",      "workload": 90, "velocity": 45, "timezone": "UTC+5:30"},
-    {"id": 4, "name": "Diana Prince",   "role": "Backend Developer",      "workload": 20, "velocity": 50, "timezone": "UTC-5"},
-    {"id": 5, "name": "Eve Adams",      "role": "QA/Testing Role",        "workload": 40, "velocity": 30, "timezone": "UTC+1"},
-    {"id": 6, "name": "Frank Castle",   "role": "Database Administrator", "workload": 60, "velocity": 35, "timezone": "UTC+0"},
-    {"id": 7, "name": "Grace Hopper",   "role": "DevOps Engineer",        "workload": 50, "velocity": 55, "timezone": "UTC-8"},
+    {"id": 1, "name": "Alice Smith",    "role": "Frontend Developer",     "workload": 85, "velocity": 40, "timezone": "UTC+5:30", "is_available": True},
+    {"id": 2, "name": "Bob Jones",      "role": "Frontend Developer",     "workload": 30, "velocity": 35, "timezone": "UTC+0",    "is_available": True},
+    {"id": 3, "name": "Charlie Davis",  "role": "Backend Developer",      "workload": 90, "velocity": 45, "timezone": "UTC+5:30", "is_available": True},
+    {"id": 4, "name": "Diana Prince",   "role": "Backend Developer",      "workload": 20, "velocity": 50, "timezone": "UTC-5",    "is_available": True},
+    {"id": 5, "name": "Eve Adams",      "role": "QA/Testing Role",        "workload": 40, "velocity": 30, "timezone": "UTC+1",    "is_available": True},
+    {"id": 6, "name": "Frank Castle",   "role": "Database Administrator", "workload": 60, "velocity": 35, "timezone": "UTC+0",    "is_available": True},
+    {"id": 7, "name": "Grace Hopper",   "role": "DevOps Engineer",        "workload": 50, "velocity": 55, "timezone": "UTC-8",    "is_available": True},
 ]
 
 def load_developers():
+    devs = DEFAULT_DEVELOPERS
     if os.path.exists(DEV_FILE):
         try:
             with open(DEV_FILE, "r") as f:
-                return json.load(f)
+                devs = json.load(f)
         except Exception:
-            return DEFAULT_DEVELOPERS
-    save_developers(DEFAULT_DEVELOPERS)
-    return DEFAULT_DEVELOPERS
+            devs = DEFAULT_DEVELOPERS
+    # Ensure all developers have is_available field defaulted to True
+    modified = False
+    for d in devs:
+        if "is_available" not in d:
+            d["is_available"] = True
+            modified = True
+    if modified or not os.path.exists(DEV_FILE):
+        save_developers(devs)
+    return devs
 
 def save_developers(devs):
     with open(DEV_FILE, "w") as f:
@@ -110,20 +118,26 @@ def append_history(entry: dict):
 def optimize_allocation_hungarian(predicted_role: str):
     """
     Multi-objective developer allocation using the Hungarian Algorithm.
+    Filters by active availability (vacation/leave dynamic routing).
     Cost matrix combines:
       - Normalised workload (60% weight) — lower is better
       - Inverse normalised velocity (40% weight) — higher velocity is better
     """
     all_devs = load_developers()
-    candidates = [dev for dev in all_devs if dev["role"] == predicted_role]
+    candidates = [dev for dev in all_devs if dev["role"] == predicted_role and dev.get("is_available", True)]
 
     if not candidates:
+        unavailable_for_role = [dev["name"] for dev in all_devs if dev["role"] == predicted_role and not dev.get("is_available", True)]
+        if unavailable_for_role:
+            reason = f"All {predicted_role}s ({', '.join(unavailable_for_role)}) are currently On Leave / Unavailable."
+        else:
+            reason = f"No developers found for {predicted_role} in team roster."
         return {
             "name": "Unassigned",
             "workload_percent": 0,
             "velocity": 0,
-            "reason": "No developers found for this role in team roster.",
-            "algorithm": "N/A"
+            "reason": reason,
+            "algorithm": "Dynamic Re-routing (Unavailable)"
         }
 
     if len(candidates) == 1:
@@ -132,7 +146,7 @@ def optimize_allocation_hungarian(predicted_role: str):
             "name": dev["name"],
             "workload_percent": dev["workload"],
             "velocity": dev["velocity"],
-            "reason": f"Only available developer for {predicted_role}.",
+            "reason": f"Only currently available developer for {predicted_role}.",
             "algorithm": "Direct Assignment"
         }
 
@@ -356,12 +370,16 @@ def predict_batch_sprint(request: BatchPredictRequest):
         shap_features = get_shap_features(explainer, X, pred_idx)
 
         # Tier 2 Capacity-aware allocation among active developers
-        candidates = [d for d in active_devs if d["role"] == predicted_role]
+        candidates = [d for d in active_devs if d["role"] == predicted_role and d.get("is_available", True)]
 
         if not candidates:
+            unavailable_for_role = [d["name"] for d in active_devs if d["role"] == predicted_role and not d.get("is_available", True)]
             assigned_name = "Unassigned"
             assigned_id = None
-            assigned_reason = f"No available developer with role: {predicted_role}"
+            if unavailable_for_role:
+                assigned_reason = f"All {predicted_role}s ({', '.join(unavailable_for_role)}) are On Leave"
+            else:
+                assigned_reason = f"No available developer with role: {predicted_role}"
             cur_w = 0
             new_w = 0
         elif len(candidates) == 1:
@@ -482,6 +500,7 @@ class DeveloperCreate(BaseModel):
     workload: int
     velocity: int
     timezone: Optional[str] = "UTC+0"
+    is_available: Optional[bool] = True
 
 class DeveloperUpdate(BaseModel):
     name: Optional[str] = None
@@ -489,6 +508,10 @@ class DeveloperUpdate(BaseModel):
     workload: Optional[int] = None
     velocity: Optional[int] = None
     timezone: Optional[str] = None
+    is_available: Optional[bool] = None
+
+class AvailabilityToggle(BaseModel):
+    is_available: bool
 
 @app.get("/developers")
 def get_developers():
@@ -506,7 +529,8 @@ def add_developer(dev: DeveloperCreate):
         "role": dev.role.strip(),
         "workload": max(0, min(100, dev.workload)),
         "velocity": max(1, dev.velocity),
-        "timezone": dev.timezone.strip() if dev.timezone else "UTC+0"
+        "timezone": dev.timezone.strip() if dev.timezone else "UTC+0",
+        "is_available": dev.is_available if dev.is_available is not None else True
     }
     devs.append(new_dev)
     save_developers(devs)
@@ -514,7 +538,7 @@ def add_developer(dev: DeveloperCreate):
 
 @app.put("/developers/{dev_id}")
 def update_developer(dev_id: int, dev_update: DeveloperUpdate):
-    """Update an existing developer's workload, velocity, role, etc."""
+    """Update an existing developer's workload, velocity, role, availability, etc."""
     devs = load_developers()
     target = None
     for d in devs:
@@ -534,7 +558,25 @@ def update_developer(dev_id: int, dev_update: DeveloperUpdate):
         target["velocity"] = max(1, dev_update.velocity)
     if dev_update.timezone is not None:
         target["timezone"] = dev_update.timezone.strip()
+    if dev_update.is_available is not None:
+        target["is_available"] = dev_update.is_available
 
+    save_developers(devs)
+    return {"status": "ok", "developer": target}
+
+@app.put("/developers/{dev_id}/availability")
+def toggle_developer_availability(dev_id: int, toggle: AvailabilityToggle):
+    """Toggle developer active availability (Simulate vacation / leave)."""
+    devs = load_developers()
+    target = None
+    for d in devs:
+        if d["id"] == dev_id:
+            target = d
+            break
+    if not target:
+        raise HTTPException(status_code=404, detail=f"Developer with ID {dev_id} not found.")
+
+    target["is_available"] = toggle.is_available
     save_developers(devs)
     return {"status": "ok", "developer": target}
 

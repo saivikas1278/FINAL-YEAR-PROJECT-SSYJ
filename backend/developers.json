@@ -5,7 +5,8 @@
     "role": "Frontend Developer",
     "workload": 75,
     "velocity": 40,
-    "timezone": "UTC+5:30"
+    "timezone": "UTC+5:30",
+    "is_available": true
   },
   {
     "id": 2,
@@ -13,7 +14,8 @@
     "role": "Frontend Developer",
     "workload": 30,
     "velocity": 35,
-    "timezone": "UTC+0"
+    "timezone": "UTC+0",
+    "is_available": true
   },
   {
     "id": 3,
@@ -21,7 +23,8 @@
     "role": "Backend Developer",
     "workload": 90,
     "velocity": 45,
-    "timezone": "UTC+5:30"
+    "timezone": "UTC+5:30",
+    "is_available": true
   },
   {
     "id": 4,
@@ -29,7 +32,8 @@
     "role": "Backend Developer",
     "workload": 20,
     "velocity": 50,
-    "timezone": "UTC-5"
+    "timezone": "UTC-5",
+    "is_available": true
   },
   {
     "id": 5,
@@ -37,7 +41,8 @@
     "role": "QA/Testing Role",
     "workload": 40,
     "velocity": 30,
-    "timezone": "UTC+1"
+    "timezone": "UTC+1",
+    "is_available": true
   },
   {
     "id": 6,
@@ -45,7 +50,8 @@
     "role": "Database Administrator",
     "workload": 60,
     "velocity": 35,
-    "timezone": "UTC+0"
+    "timezone": "UTC+0",
+    "is_available": true
   },
   {
     "id": 7,
@@ -53,7 +59,8 @@
     "role": "DevOps Engineer",
     "workload": 50,
     "velocity": 55,
-    "timezone": "UTC-8"
+    "timezone": "UTC-8",
+    "is_available": true
   },
   {
     "id": 8,
@@ -61,6 +68,7 @@
     "role": "Frontend Developer",
     "workload": 30,
     "velocity": 35,
-    "timezone": "UTC+2"
+    "timezone": "UTC+2",
+    "is_available": true
   }
 ]
