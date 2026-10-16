@@ -1,0 +1,66 @@
+[
+  {
+    "id": 1,
+    "name": "Alice Smith",
+    "role": "Frontend Developer",
+    "workload": 75,
+    "velocity": 40,
+    "timezone": "UTC+5:30"
+  },
+  {
+    "id": 2,
+    "name": "Bob Jones",
+    "role": "Frontend Developer",
+    "workload": 30,
+    "velocity": 35,
+    "timezone": "UTC+0"
+  },
+  {
+    "id": 3,
+    "name": "Charlie Davis",
+    "role": "Backend Developer",
+    "workload": 90,
+    "velocity": 45,
+    "timezone": "UTC+5:30"
+  },
+  {
+    "id": 4,
+    "name": "Diana Prince",
+    "role": "Backend Developer",
+    "workload": 20,
+    "velocity": 50,
+    "timezone": "UTC-5"
+  },
+  {
+    "id": 5,
+    "name": "Eve Adams",
+    "role": "QA/Testing Role",
+    "workload": 40,
+    "velocity": 30,
+    "timezone": "UTC+1"
+  },
+  {
+    "id": 6,
+    "name": "Frank Castle",
+    "role": "Database Administrator",
+    "workload": 60,
+    "velocity": 35,
+    "timezone": "UTC+0"
+  },
+  {
+    "id": 7,
+    "name": "Grace Hopper",
+    "role": "DevOps Engineer",
+    "workload": 50,
+    "velocity": 55,
+    "timezone": "UTC-8"
+  },
+  {
+    "id": 8,
+    "name": "Sam Wilson",
+    "role": "Frontend Developer",
+    "workload": 30,
+    "velocity": 35,
+    "timezone": "UTC+2"
+  }
+]

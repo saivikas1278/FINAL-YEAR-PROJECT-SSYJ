@@ -1,0 +1,50 @@
+{
+  "dataset_size": 500,
+  "balanced_size": 590,
+  "test_size": 118,
+  "classes": [
+    "Backend Developer",
+    "Database Administrator",
+    "DevOps Engineer",
+    "Frontend Developer",
+    "QA/Testing Role"
+  ],
+  "models": {
+    "Random Forest": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "macro_f1": 1.0
+    },
+    "Decision Tree": {
+      "accuracy": 0.9746,
+      "precision": 0.9759,
+      "recall": 0.9743,
+      "macro_f1": 0.9746
+    },
+    "KNN": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "macro_f1": 1.0
+    },
+    "AdaBoost": {
+      "accuracy": 0.9407,
+      "precision": 0.9548,
+      "recall": 0.9409,
+      "macro_f1": 0.9422
+    },
+    "XGBoost": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "macro_f1": 1.0
+    },
+    "CatBoost": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "macro_f1": 1.0
+    }
+  }
+}

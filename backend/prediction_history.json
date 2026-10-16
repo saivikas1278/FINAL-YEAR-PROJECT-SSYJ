@@ -1,0 +1,18 @@
+[
+  {
+    "timestamp": "2026-10-16T08:50:15.268835Z",
+    "task": "Configure Kubernetes ingress controller and Docker deployment pipeline for AWS EKS",
+    "predicted_role": "DevOps Engineer",
+    "confidence": 0.9011,
+    "model": "CatBoost",
+    "assigned_to": "Grace Hopper"
+  },
+  {
+    "timestamp": "2026-10-16T07:02:52.899934Z",
+    "task": "Build a responsive user profile dashboard using React, Tailwind CSS, and custom UI components",
+    "predicted_role": "Frontend Developer",
+    "confidence": 0.9847,
+    "model": "XGBoost",
+    "assigned_to": "Bob Jones"
+  }
+]
