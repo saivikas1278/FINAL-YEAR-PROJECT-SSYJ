@@ -28,8 +28,18 @@ An end-to-end Two-Tier Hybrid Framework combining Advanced Gradient Boosting (**
 4. **Dynamic Team Roster & Workload Management (CRUD)**:
    - Add/edit team members, adjust live workload sliders, track sprint velocity, and update timezones.
 
-5. **Model Benchmarking**:
-   - Compares 6 ML classifiers: Random Forest, Decision Tree, K-Nearest Neighbors, AdaBoost, XGBoost, and CatBoost with SMOTE-Tomek balancing.
+5. **Sprint Backlog Batch Allocation (Phase 2)**:
+   - Upload or configure full sprint backlogs (8+ user stories).
+   - Capacity-aware multi-task Hungarian algorithm distributes user stories without overloading individual team members.
+   - Live workload impact meters (before vs. post-allocation) and SHAP feature badges per story.
+
+6. **Cross-Repository Generalization & Semantic Benchmark (Research Contribution)**:
+   - Multi-source Agile dataset (1,250+ tasks from Taiga.io, Apache, Mozilla, FinTech, and OpenEHR).
+   - Zero-shot domain transfer evaluation testing models on completely unseen repositories.
+   - Compares Bag-of-Words (BoW) vs. TF-IDF vs. Dense Semantic (LSA/SVD) Embeddings.
+
+7. **Viva & Research Audit Report Export**:
+   - 1-click export of complete allocation decisions, team capacity usage, model benchmarks, and SHAP feature graphs for viva presentations and examiners.
 
 ---
 

@@ -1,0 +1,70 @@
+{
+  "dataset_total_tasks": 1250,
+  "repositories": [
+    "Taiga.io Agile Core",
+    "OpenEHR Health System",
+    "Enterprise FinTech Sprint",
+    "Apache Microservices Framework",
+    "Mozilla Sync & Cloud Services"
+  ],
+  "classes": [
+    "Backend Developer",
+    "Database Administrator",
+    "DevOps Engineer",
+    "Frontend Developer",
+    "QA/Testing Role"
+  ],
+  "feature_representations": {
+    "Bag-of-Words (BoW)": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "macro_f1": 1.0
+    },
+    "TF-IDF (Baseline)": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "macro_f1": 1.0
+    },
+    "Dense Semantic Embeddings": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "macro_f1": 1.0
+    }
+  },
+  "cross_domain_generalization": {
+    "source_repositories": [
+      "Taiga.io Agile Core",
+      "Apache Microservices Framework",
+      "Mozilla Sync & Cloud Services"
+    ],
+    "target_repositories": [
+      "Enterprise FinTech Sprint",
+      "OpenEHR Health System"
+    ],
+    "source_sample_count": 779,
+    "target_sample_count": 471,
+    "models": {
+      "Random Forest": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "macro_f1": 1.0
+      },
+      "XGBoost": {
+        "accuracy": 0.9958,
+        "precision": 0.9963,
+        "recall": 0.9958,
+        "macro_f1": 0.996
+      },
+      "CatBoost": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "macro_f1": 1.0
+      }
+    }
+  }
+}

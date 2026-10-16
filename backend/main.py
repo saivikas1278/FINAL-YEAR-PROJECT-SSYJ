@@ -289,6 +289,164 @@ def predict_role(task: TaskInput):
     return result
 
 
+class BatchTaskItem(BaseModel):
+    id: Optional[str] = None
+    title: Optional[str] = None
+    task_description: str
+    story_points: Optional[int] = 3
+
+class BatchPredictRequest(BaseModel):
+    tasks: list[BatchTaskItem]
+    model: Optional[Literal["xgboost", "catboost"]] = "xgboost"
+    apply_workload_update: Optional[bool] = False
+
+@app.post("/predict/batch")
+def predict_batch_sprint(request: BatchPredictRequest):
+    """
+    Tier 1 + Tier 2 Sprint Backlog Batch Allocation:
+    Predicts roles for all tasks, performs capacity-aware Hungarian optimization
+    across the active team roster without overloading individual developers.
+    """
+    if not vectorizer or not label_encoder:
+        raise HTTPException(status_code=500, detail="Core ML artifacts not loaded.")
+
+    if request.model == "catboost":
+        if cb_model is None:
+            raise HTTPException(status_code=503, detail="CatBoost model not loaded.")
+        clf = cb_model
+        explainer = cb_explainer
+        model_name = "CatBoost"
+    else:
+        if xgb_model is None:
+            raise HTTPException(status_code=503, detail="XGBoost model not loaded.")
+        clf = xgb_model
+        explainer = xgb_explainer
+        model_name = "XGBoost"
+
+    active_devs = [dict(d) for d in load_developers()]
+    initial_roster = [dict(d) for d in active_devs]
+
+    results = []
+    role_counts = {}
+    dev_assignments = {}
+
+    for idx, t in enumerate(request.tasks):
+        task_id = t.id or f"TASK-{idx + 1:02d}"
+        task_title = t.title or (t.task_description[:50] + ("..." if len(t.task_description) > 50 else ""))
+        desc = t.task_description
+        pts = t.story_points or 3
+
+        # Tier 1 ML Role prediction
+        X = vectorizer.transform([desc]).toarray()
+        pred_idx = clf.predict(X)[0]
+        if hasattr(pred_idx, '__iter__'):
+            pred_idx = pred_idx[0]
+        pred_idx = int(pred_idx)
+        predicted_role = label_encoder.inverse_transform([pred_idx])[0]
+
+        proba = clf.predict_proba(X)[0]
+        confidence = float(np.max(proba))
+
+        top3_indices = np.argsort(proba)[::-1][:3]
+        top_3_roles = [
+            {"role": label_encoder.inverse_transform([i])[0], "confidence": round(float(proba[i]), 4)}
+            for i in top3_indices
+        ]
+
+        shap_features = get_shap_features(explainer, X, pred_idx)
+
+        # Tier 2 Capacity-aware allocation among active developers
+        candidates = [d for d in active_devs if d["role"] == predicted_role]
+
+        if not candidates:
+            assigned_name = "Unassigned"
+            assigned_id = None
+            assigned_reason = f"No available developer with role: {predicted_role}"
+            cur_w = 0
+            new_w = 0
+        elif len(candidates) == 1:
+            best = candidates[0]
+            assigned_name = best["name"]
+            assigned_id = best["id"]
+            cur_w = best["workload"]
+            delta = min(35, max(5, pts * 2))
+            new_w = min(100, cur_w + delta)
+            best["workload"] = new_w
+            assigned_reason = f"Single role candidate: {cur_w}% -> {new_w}% (+{delta}%)"
+        else:
+            w_arr = np.array([d["workload"] for d in candidates], dtype=float)
+            v_arr = np.array([d["velocity"] for d in candidates], dtype=float)
+
+            w_min, w_max = w_arr.min(), w_arr.max()
+            v_min, v_max = v_arr.min(), v_arr.max()
+
+            norm_w = (w_arr - w_min) / (w_max - w_min + 1e-9)
+            norm_v = (v_arr - v_min) / (v_max - v_min + 1e-9)
+
+            cost = 0.6 * norm_w + 0.4 * (1 - norm_v)
+            row_ind, col_ind = linear_sum_assignment(cost.reshape(1, -1))
+            best = candidates[col_ind[0]]
+
+            assigned_name = best["name"]
+            assigned_id = best["id"]
+            cur_w = best["workload"]
+            delta = min(35, max(5, pts * 2))
+            new_w = min(100, cur_w + delta)
+            best["workload"] = new_w
+            assigned_reason = f"Hungarian optimum: {cur_w}% -> {new_w}% (Vel: {best['velocity']} pts)"
+
+        role_counts[predicted_role] = role_counts.get(predicted_role, 0) + 1
+        dev_assignments[assigned_name] = dev_assignments.get(assigned_name, 0) + 1
+
+        results.append({
+            "task_id": task_id,
+            "title": task_title,
+            "task_description": desc,
+            "story_points": pts,
+            "predicted_role": predicted_role,
+            "confidence": round(confidence, 4),
+            "top_3_roles": top_3_roles,
+            "shap_explanation": shap_features,
+            "assigned_to": assigned_name,
+            "assigned_id": assigned_id,
+            "previous_workload": cur_w,
+            "new_workload": new_w,
+            "reason": assigned_reason
+        })
+
+        # Append to audit history
+        try:
+            append_history({
+                "timestamp": datetime.utcnow().isoformat() + "Z",
+                "task": f"[Sprint] {task_title}",
+                "predicted_role": predicted_role,
+                "confidence": round(confidence, 4),
+                "model": model_name,
+                "assigned_to": assigned_name,
+            })
+        except Exception:
+            pass
+
+    if request.apply_workload_update:
+        save_developers(active_devs)
+
+    avg_conf = float(np.mean([r["confidence"] for r in results])) if results else 0.0
+    total_pts = sum(t.story_points or 3 for t in request.tasks)
+
+    return {
+        "status": "ok",
+        "model_used": model_name,
+        "total_tasks": len(results),
+        "total_story_points": total_pts,
+        "average_confidence": round(avg_conf, 4),
+        "role_distribution": role_counts,
+        "developer_distribution": dev_assignments,
+        "tasks": results,
+        "initial_roster": initial_roster,
+        "final_roster": active_devs
+    }
+
+
 @app.get("/metrics")
 def get_metrics():
     """Returns baseline model comparison metrics for the frontend chart."""
@@ -298,6 +456,22 @@ def get_metrics():
             detail="Metrics not available. Run train_baseline.py first."
         )
     return baseline_results
+
+
+@app.get("/benchmark/cross-repo")
+def get_cross_repo_benchmark():
+    """Returns multi-repository and semantic embedding research metrics."""
+    bench_path = f"{BASE}/models/cross_repo_benchmark.json"
+    if not os.path.exists(bench_path):
+        raise HTTPException(
+            status_code=404,
+            detail="Benchmark metrics not available. Run train_semantic_benchmark.py first."
+        )
+    try:
+        with open(bench_path, "r") as f:
+            return json.load(f)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ── Developer Roster Endpoints (CRUD) ──────────────────────────────────────────

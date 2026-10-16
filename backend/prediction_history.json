@@ -1,5 +1,69 @@
 [
   {
+    "timestamp": "2026-10-16T09:54:44.461730Z",
+    "task": "[Sprint] Multi-stage Docker Build",
+    "predicted_role": "DevOps Engineer",
+    "confidence": 0.2919,
+    "model": "XGBoost",
+    "assigned_to": "Grace Hopper"
+  },
+  {
+    "timestamp": "2026-10-16T09:54:44.440071Z",
+    "task": "[Sprint] Redis Rate Limiter",
+    "predicted_role": "Backend Developer",
+    "confidence": 0.9149,
+    "model": "XGBoost",
+    "assigned_to": "Diana Prince"
+  },
+  {
+    "timestamp": "2026-10-16T09:54:44.404906Z",
+    "task": "[Sprint] WebSocket Activity Feed",
+    "predicted_role": "Backend Developer",
+    "confidence": 0.5342,
+    "model": "XGBoost",
+    "assigned_to": "Diana Prince"
+  },
+  {
+    "timestamp": "2026-10-16T09:54:44.369091Z",
+    "task": "[Sprint] Kubernetes Ingress & Helm",
+    "predicted_role": "Backend Developer",
+    "confidence": 0.4893,
+    "model": "XGBoost",
+    "assigned_to": "Diana Prince"
+  },
+  {
+    "timestamp": "2026-10-16T09:54:44.341281Z",
+    "task": "[Sprint] PostgreSQL Read Replica",
+    "predicted_role": "DevOps Engineer",
+    "confidence": 0.3092,
+    "model": "XGBoost",
+    "assigned_to": "Grace Hopper"
+  },
+  {
+    "timestamp": "2026-10-16T09:54:44.327621Z",
+    "task": "[Sprint] Cypress E2E Checkout Suite",
+    "predicted_role": "QA/Testing Role",
+    "confidence": 0.8754,
+    "model": "XGBoost",
+    "assigned_to": "Eve Adams"
+  },
+  {
+    "timestamp": "2026-10-16T09:54:44.311653Z",
+    "task": "[Sprint] OAuth2 JWT Middleware",
+    "predicted_role": "Backend Developer",
+    "confidence": 0.7249,
+    "model": "XGBoost",
+    "assigned_to": "Diana Prince"
+  },
+  {
+    "timestamp": "2026-10-16T09:54:44.270759Z",
+    "task": "[Sprint] React Checkout Modal",
+    "predicted_role": "Frontend Developer",
+    "confidence": 0.9899,
+    "model": "XGBoost",
+    "assigned_to": "Bob Jones"
+  },
+  {
     "timestamp": "2026-10-16T08:50:15.268835Z",
     "task": "Configure Kubernetes ingress controller and Docker deployment pipeline for AWS EKS",
     "predicted_role": "DevOps Engineer",
