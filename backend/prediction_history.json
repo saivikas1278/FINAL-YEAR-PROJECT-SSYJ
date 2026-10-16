@@ -1,5 +1,13 @@
 [
   {
+    "timestamp": "2026-10-16T10:54:53.690261Z",
+    "task": "Develop high-throughput REST API endpoints in FastAPI with OAuth2 JWT token rotation and RBAC permission checks.",
+    "predicted_role": "Backend Developer",
+    "confidence": 0.7249,
+    "model": "XGBoost",
+    "assigned_to": "Diana Prince"
+  },
+  {
     "timestamp": "2026-10-16T10:32:58.138202Z",
     "task": "[Sprint] Multi-stage Docker Build",
     "predicted_role": "DevOps Engineer",
